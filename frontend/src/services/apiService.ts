@@ -1,11 +1,8 @@
-/**
- * API Service - Frontend
- * Sostituisce i mock con chiamate reali al backend PHP
- */
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 class ApiService {
+  private token: string | null = null;
+
   constructor() {
     this.token = localStorage.getItem('auth_token');
   }
@@ -21,9 +18,9 @@ class ApiService {
   }
 
   async request(endpoint: string, options: RequestInit = {}) {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (this.token) {
@@ -48,7 +45,6 @@ class ApiService {
     return data.data;
   }
 
-  // Auth
   async register(email: string, password: string, passwordConfirm: string) {
     const data = await this.request('/auth/register', {
       method: 'POST',
@@ -83,7 +79,6 @@ class ApiService {
     this.clearToken();
   }
 
-  // Events
   async getEvents(filters?: {
     from?: string;
     to?: string;
@@ -138,7 +133,6 @@ class ApiService {
     });
   }
 
-  // Categories
   async getCategories() {
     return await this.request('/categories');
   }
@@ -163,9 +157,7 @@ class ApiService {
     });
   }
 
-  // Documents (placeholder - implementare dopo)
   async getDocuments() {
-    // TODO: implementare endpoint documenti
     return [];
   }
 
@@ -173,7 +165,7 @@ class ApiService {
     const formData = new FormData();
     formData.append('file', file);
 
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
@@ -195,3 +187,4 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
+

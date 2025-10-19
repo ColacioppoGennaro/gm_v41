@@ -5,7 +5,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 
 // Placeholder componenti (da completare)
-const Dashboard = ({ events, categories, user }: any) => (
+const Dashboard = ({ events, user }: any) => (
   <div className="p-4">
     <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
     <p>Benvenuto {user?.email}!</p>
