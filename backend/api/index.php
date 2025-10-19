@@ -45,14 +45,8 @@ function notFound() {
 }
 
 try {
-    // DEBUG - rimuovere dopo
+    // Health check (qualsiasi path che finisce con /health)
     if (strpos($path, 'health') !== false) {
-        echo json_encode(['DEBUG' => 'path contains health', 'path' => $path]);
-        exit;
-    }
-    
-    // Health check (NO AUTH!)
-    if ($path === 'health' || $path === 'api/health') {
         echo json_encode(['status' => 'ok', 'version' => '1.0.0', 'timestamp' => date('c')]);
         exit;
     }
