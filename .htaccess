@@ -8,12 +8,19 @@ RewriteBase /gm_v41/
 
 # CORS
 Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
 
-# API
+# API routes
 RewriteRule ^api/(.*)$ backend/api/index.php [QSA,L]
 
-# Frontend
+# Assets (CSS/JS)
+RewriteRule ^assets/(.*)$ frontend/dist/assets/$1 [L]
+
+# Root → index.html
+RewriteRule ^$ frontend/dist/index.html [L]
+
+# Tutto il resto → index.html (per React Router)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ frontend/dist/index.html [L]
-
