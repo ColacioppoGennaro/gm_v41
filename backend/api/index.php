@@ -5,7 +5,14 @@
  */
 
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);  // ← Cambia da 0 a 1 per vedere errori
+
+// Aggiungi questo debug
+error_log("REQUEST_URI: " . $_SERVER['REQUEST_URI']);
+error_log("Path parsed: " . (isset($path) ? $path : 'N/A'));
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 
 // CORS Headers
@@ -38,6 +45,12 @@ function notFound() {
 }
 
 try {
+    // DEBUG - rimuovere dopo
+    if (strpos($path, 'health') !== false) {
+        echo json_encode(['DEBUG' => 'path contains health', 'path' => $path]);
+        exit;
+    }
+    
     // Health check (NO AUTH!)
     if ($path === 'health' || $path === 'api/health') {
         echo json_encode(['status' => 'ok', 'version' => '1.0.0', 'timestamp' => date('c')]);
