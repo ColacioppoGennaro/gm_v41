@@ -45,22 +45,6 @@ function notFound() {
 }
 
 try {
-    // DEBUG - vedere il path
-    error_log("REQUEST_URI: " . $_SERVER['REQUEST_URI']);
-    error_log("SCRIPT_NAME: " . $_SERVER['SCRIPT_NAME']);
-    error_log("Path parsed: " . $path);
-    
-    // Se contiene "auth", mostra e esci
-    if (strpos($path, 'auth') !== false) {
-        echo json_encode([
-            'DEBUG' => true,
-            'request_uri' => $_SERVER['REQUEST_URI'],
-            'script_name' => $_SERVER['SCRIPT_NAME'],
-            'path' => $path,
-            'method' => $method
-        ]);
-        exit;
-    }
     // Health check (qualsiasi path che finisce con /health)
     if (strpos($path, 'health') !== false) {
         echo json_encode(['status' => 'ok', 'version' => '1.0.0', 'timestamp' => date('c')]);
