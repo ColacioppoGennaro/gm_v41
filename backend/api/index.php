@@ -51,12 +51,12 @@ try {
         exit;
     }
     
-    // Login/Register (NO AUTH!)
-    if ($path === 'auth/register' && $method === 'POST') {
+    // Auth endpoints (senza autenticazione)
+    if (strpos($path, 'auth/register') !== false && $method === 'POST') {
         AuthController::register();
         exit;
     }
-    if ($path === 'auth/login' && $method === 'POST') {
+    if (strpos($path, 'auth/login') !== false && $method === 'POST') {
         AuthController::login();
         exit;
     }
