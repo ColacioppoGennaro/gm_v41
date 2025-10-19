@@ -41,7 +41,6 @@ build/
 *.local
 
 # Frontend build
-frontend/dist/
 frontend/build/
 
 # ============================================
