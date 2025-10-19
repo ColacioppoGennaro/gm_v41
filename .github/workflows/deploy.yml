@@ -1,0 +1,175 @@
+name: Deploy to Netsons
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # ============================================
+    # 1. CHECKOUT CODICE
+    # ============================================
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    # ============================================
+    # 2. SETUP NODE.JS
+    # ============================================
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    # ============================================
+    # 3. BUILD FRONTEND REACT
+    # ============================================
+    - name: 📦 Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: 🔨 Build frontend
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        VITE_API_URL: ${{ secrets.PRODUCTION_API_URL || 'https://tuodominio.it/api' }}
+
+    # ============================================
+    # 4. PREPARA BACKEND PHP
+    # ============================================
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+
+    - name: 📦 Install Composer dependencies
+      working-directory: ./backend
+      run: |
+        if [ -f composer.json ]; then
+          composer install --no-dev --optimize-autoloader
+        else
+          echo "⚠️ composer.json not found, skipping"
+        fi
+
+    # ============================================
+    # 5. CREA FILE .ENV SUL SERVER
+    # ============================================
+    - name: 🔐 Create .env file
+      run: |
+        cat > backend/.env << EOF
+        APP_NAME="SmartLife AI Organizer"
+        APP_ENV=production
+        APP_DEBUG=false
+        APP_URL=${{ secrets.PRODUCTION_URL }}
+        APP_TIMEZONE=Europe/Rome
+        
+        DB_CONNECTION=mysql
+        DB_HOST=${{ secrets.DB_HOST }}
+        DB_PORT=3306
+        DB_DATABASE=${{ secrets.DB_DATABASE }}
+        DB_USERNAME=${{ secrets.DB_USERNAME }}
+        DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+        DB_CHARSET=utf8mb4
+        DB_COLLATION=utf8mb4_unicode_ci
+        
+        JWT_SECRET=${{ secrets.JWT_SECRET }}
+        JWT_EXPIRATION=604800
+        
+        GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+        GEMINI_MODEL=gemini-2.0-flash
+        
+        GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+        GOOGLE_REDIRECT_URI=${{ secrets.PRODUCTION_URL }}/api/auth/google/callback
+        GOOGLE_SCOPES=https://www.googleapis.com/auth/calendar.events
+        
+        UPLOAD_PATH=/uploads
+        UPLOAD_MAX_SIZE_FREE=10485760
+        UPLOAD_MAX_SIZE_PRO=524288000
+        ALLOWED_MIME_TYPES=application/pdf
+        
+        RATE_LIMIT_FREE=100
+        RATE_LIMIT_PRO=500
+        AI_QUERIES_LIMIT_FREE=20
+        AI_QUERIES_LIMIT_PRO=500
+        
+        LOG_CHANNEL=file
+        LOG_LEVEL=error
+        
+        CORS_ALLOWED_ORIGINS=${{ secrets.PRODUCTION_URL }}
+        
+        SESSION_DRIVER=database
+        SESSION_LIFETIME=10080
+        
+        CACHE_DRIVER=file
+        CACHE_PREFIX=gm_v41
+        EOF
+
+    # ============================================
+    # 6. DEPLOY VIA FTP
+    # ============================================
+    - name: 🚀 Deploy Frontend to Netsons (public_html)
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./frontend/dist/
+        server-dir: /public_html/
+        dangerous-clean-slate: false
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+
+    - name: 🚀 Deploy Backend to Netsons (/api)
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./backend/
+        server-dir: /api/
+        dangerous-clean-slate: false
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/vendor/**
+          **/node_modules/**
+          **/tests/**
+          **/*.md
+
+    # ============================================
+    # 7. VERIFICA DEPLOY
+    # ============================================
+    - name: ✅ Verify deployment
+      run: |
+        echo "🎉 Deploy completato!"
+        echo "Frontend: ${{ secrets.PRODUCTION_URL }}"
+        echo "Backend API: ${{ secrets.PRODUCTION_URL }}/api"
+        
+        # Test health endpoint
+        response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.PRODUCTION_URL }}/api/health || echo "000")
+        
+        if [ "$response" = "200" ]; then
+          echo "✅ API Health Check: OK"
+        else
+          echo "⚠️ API Health Check: Failed (HTTP $response)"
+          echo "Verifica manualmente: ${{ secrets.PRODUCTION_URL }}/api/health"
+        fi
+
+    # ============================================
+    # 8. NOTIFICA SLACK (OPZIONALE)
+    # ============================================
+    # - name: 📢 Notify Slack
+    #   if: always()
+    #   uses: 8398a7/action-slack@v3
+    #   with:
+    #     status: ${{ job.status }}
+    #     text: 'Deploy GM_V41 ${{ job.status }}'
+    #     webhook_url: ${{ secrets.SLACK_WEBHOOK }}

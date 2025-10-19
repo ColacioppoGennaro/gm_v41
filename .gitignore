@@ -1,0 +1,225 @@
+# ============================================
+# GITIGNORE - GM_V41 SmartLife AI Organizer
+# ============================================
+
+# ============================================
+# SECRETS & ENVIRONMENT
+# ============================================
+.env
+.env.local
+.env.production
+.env.*.local
+*.key
+*.pem
+secrets/
+
+# ============================================
+# DEPENDENCIES
+# ============================================
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# PHP Composer
+vendor/
+composer.lock
+
+# ============================================
+# BUILD & DIST
+# ============================================
+dist/
+dist-ssr/
+build/
+*.local
+
+# Frontend build
+frontend/dist/
+frontend/build/
+
+# ============================================
+# UPLOADS & USER DATA
+# ============================================
+uploads/*
+!uploads/.gitkeep
+
+# Documenti utenti (mai in Git!)
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+
+# ============================================
+# DATABASE
+# ============================================
+*.sql.gz
+*.sql.zip
+backup_*.sql
+dumps/
+
+# SQLite (se usato per dev)
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================
+# IDE & EDITOR
+# ============================================
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PHPStorm / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ============================================
+# OPERATING SYSTEM
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+
+# ============================================
+# LOGS
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# PHP logs
+error.log
+php_errors.log
+*.log
+
+# ============================================
+# CACHE & TEMPORARY
+# ============================================
+.cache/
+.temp/
+.tmp/
+tmp/
+*.tmp
+*.cache
+
+# PHP cache
+.phpunit.result.cache
+.php-cs-fixer.cache
+
+# Frontend cache
+.vite/
+.turbo/
+.next/
+.nuxt/
+.output/
+
+# ============================================
+# TESTING
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+.phpunit.result.cache
+
+# ============================================
+# PRODUCTION SPECIFIC
+# ============================================
+
+# Deployment artifacts
+deploy/
+releases/
+
+# Hosting FTP cache
+.ftpquota
+.htpasswd
+
+# ============================================
+# PROJECT SPECIFIC
+# ============================================
+
+# Backup files
+*.bak
+*.backup
+*_backup
+backup_*
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# ============================================
+# ALLOWED FILES (IMPORTANT)
+# ============================================
+!.env.example
+!docs/**/*.sql
+!.gitkeep
