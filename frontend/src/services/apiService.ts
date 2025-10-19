@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/gm_v41/api';
 
 class ApiService {
   private token: string | null = null;
@@ -187,4 +187,3 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-
