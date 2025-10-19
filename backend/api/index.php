@@ -36,9 +36,9 @@ $scriptName = dirname($_SERVER['SCRIPT_NAME']);
 $path = str_replace($scriptName, '', $requestUri);
 $path = strtok($path, '?');
 $path = trim($path, '/');
+// Normalizza path: rimuovi gm_v41/ e api/ se presenti
+$path = preg_replace('#^(gm_v41/)?api/#', '', $path);
 $path = trim($path, '/');
-// Rimuovi gm_v41/ se presente
-$path = preg_replace('#^gm_v41/#', '', $path);
 $method = $_SERVER['REQUEST_METHOD'];
 
 function notFound() {
