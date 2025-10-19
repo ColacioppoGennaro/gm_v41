@@ -38,13 +38,13 @@ function notFound() {
 }
 
 try {
-    // Health check
+    // Health check (NO AUTH!)
     if ($path === 'health' || $path === 'api/health') {
         echo json_encode(['status' => 'ok', 'version' => '1.0.0', 'timestamp' => date('c')]);
         exit;
     }
     
-    // Auth
+    // Login/Register (NO AUTH!)
     if ($path === 'auth/register' && $method === 'POST') {
         AuthController::register();
         exit;
@@ -54,7 +54,7 @@ try {
         exit;
     }
     
-    // Protected routes
+    // SOLO ORA richiedi auth per tutto il resto
     AuthMiddleware::authenticate();
     
     if ($path === 'auth/me' && $method === 'GET') {
