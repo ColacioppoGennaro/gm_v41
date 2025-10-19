@@ -36,6 +36,9 @@ $scriptName = dirname($_SERVER['SCRIPT_NAME']);
 $path = str_replace($scriptName, '', $requestUri);
 $path = strtok($path, '?');
 $path = trim($path, '/');
+$path = trim($path, '/');
+// Rimuovi gm_v41/ se presente
+$path = preg_replace('#^gm_v41/#', '', $path);
 $method = $_SERVER['REQUEST_METHOD'];
 
 function notFound() {
@@ -64,7 +67,8 @@ try {
     // SOLO ORA richiedi auth per tutto il resto
     AuthMiddleware::authenticate();
     
-    if ($path === 'auth/me' && $method === 'GET') {
+    // Gestisci /me con qualsiasi prefix
+    if ((strpos($path, 'auth/me') !== false || strpos($path, '/me') !== false) && $method === 'GET') {
         AuthController::me();
         exit;
     }
