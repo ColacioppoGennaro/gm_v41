@@ -56,13 +56,23 @@ const App: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const [eventsData, categoriesData] = await Promise.all([
-        apiService.getEvents(),
-        apiService.getCategories(),
-      ]);
+      // Events
+      try {
+        const eventsData = await apiService.getEvents();
+        setEvents(eventsData?.events || []);
+      } catch (error) {
+        console.error('Failed to load events:', error);
+        setEvents([]);
+      }
 
-      setEvents(eventsData.events || []);
-      setCategories(categoriesData || []);
+      // Categories
+      try {
+        const categoriesData = await apiService.getCategories();
+        setCategories(categoriesData || []);
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+        setCategories([]);
+      }
     } catch (error) {
       console.error('Failed to load data:', error);
     }
