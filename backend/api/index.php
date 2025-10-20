@@ -48,13 +48,13 @@ function notFound() {
 }
 
 try {
-    // Health check (qualsiasi path che finisce con /health)
+    // Health check (no auth)
     if (strpos($path, 'health') !== false) {
         echo json_encode(['status' => 'ok', 'version' => '1.0.0', 'timestamp' => date('c')]);
         exit;
     }
     
-    // Auth endpoints (senza autenticazione)
+    // Auth endpoints (no auth required)
     if (strpos($path, 'auth/register') !== false && $method === 'POST') {
         AuthController::register();
         exit;
@@ -64,24 +64,25 @@ try {
         exit;
     }
     
-    // SOLO ORA richiedi auth per tutto il resto
+    // All other endpoints require authentication
     AuthMiddleware::authenticate();
     
-    // Gestisci /me con qualsiasi prefix
-    if ((strpos($path, 'auth/me') !== false || strpos($path, '/me') !== false) && $method === 'GET') {
+    // User profile
+    if (strpos($path, 'auth/me') !== false && $method === 'GET') {
         AuthController::me();
         exit;
     }
     
-    // Events
-    if (strpos($path, 'events') !== false && !preg_match('/events\/\d+/', $path)) {
+    // Events list
+    if (preg_match('#events/?$#', $path)) {
         if ($method === 'GET') EventController::index();
         elseif ($method === 'POST') EventController::create();
         else notFound();
         exit;
     }
     
-    if (preg_match('/^events\/(\d+)$/', $path, $m)) {
+    // Single event
+    if (preg_match('#events/(\d+)$#', $path, $m)) {
         $id = $m[1];
         if ($method === 'GET') EventController::show($id);
         elseif ($method === 'PUT') EventController::update($id);
@@ -90,13 +91,20 @@ try {
         exit;
     }
     
-    if (preg_match('/^events\/(\d+)\/(complete|uncomplete)$/', $path, $m)) {
-        if ($method === 'POST') EventController::toggleStatus($m[1]);
-        else notFound();
+    // Toggle event status
+    if (preg_match('#events/(\d+)/complete#', $path, $m) && $method === 'POST') {
+        EventController::toggleStatus($m[1]);
+        exit;
+    }
+    
+    // Categories
+    if (strpos($path, 'categories') !== false && $method === 'GET') {
+        CategoryController::index();
         exit;
     }
     
     notFound();
+    
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => ['code' => 'SERVER_ERROR', 'message' => $e->getMessage()]]);
