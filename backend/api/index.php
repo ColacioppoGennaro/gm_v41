@@ -74,7 +74,7 @@ try {
     }
     
     // Events
-    if ($path === 'events') {
+    if (strpos($path, 'events') !== false && !preg_match('/events\/\d+/', $path)) {
         if ($method === 'GET') EventController::index();
         elseif ($method === 'POST') EventController::create();
         else notFound();
