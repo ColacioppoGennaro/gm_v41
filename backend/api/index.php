@@ -5,14 +5,7 @@
  */
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);  // ← Cambia da 0 a 1 per vedere errori
-
-// Aggiungi questo debug
-error_log("REQUEST_URI: " . $_SERVER['REQUEST_URI']);
-error_log("Path parsed: " . (isset($path) ? $path : 'N/A'));
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 // CORS Headers
@@ -30,22 +23,20 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/EventController.php';
+require_once __DIR__ . '/../controllers/CategoryController.php'; // ← AGGIUNTO!
 
+// Parse path
 $requestUri = $_SERVER['REQUEST_URI'];
 $scriptName = dirname($_SERVER['SCRIPT_NAME']);
 $path = str_replace($scriptName, '', $requestUri);
 $path = strtok($path, '?');
 $path = trim($path, '/');
-// Normalizza path: rimuovi gm_v41/ e api/ se presenti
+
+// Normalize path: remove gm_v41/api/ prefix
 $path = preg_replace('#^(gm_v41/)?api/#', '', $path);
 $path = trim($path, '/');
+
 $method = $_SERVER['REQUEST_METHOD'];
-
-// Ripeti normalizzazione e aggiungi DEBUG richiesto
-$path = preg_replace('#^(gm_v41/)?api/#', '', $path);
-$path = trim($path, '/');
-
-
 
 function notFound() {
     http_response_code(404);
@@ -80,7 +71,7 @@ try {
     }
     
     // Events list
-    if (preg_match('#events/?$#', $path)) {
+    if (preg_match('#^events/?$#', $path)) {
         if ($method === 'GET') EventController::index();
         elseif ($method === 'POST') EventController::create();
         else notFound();
@@ -88,7 +79,7 @@ try {
     }
     
     // Single event
-    if (preg_match('#events/(\d+)$#', $path, $m)) {
+    if (preg_match('#^events/(\d+)$#', $path, $m)) {
         $id = $m[1];
         if ($method === 'GET') EventController::show($id);
         elseif ($method === 'PUT') EventController::update($id);
@@ -98,13 +89,13 @@ try {
     }
     
     // Toggle event status
-    if (preg_match('#events/(\d+)/complete#', $path, $m) && $method === 'POST') {
+    if (preg_match('#^events/(\d+)/complete$#', $path, $m) && $method === 'POST') {
         EventController::toggleStatus($m[1]);
         exit;
     }
     
     // Categories
-    if (strpos($path, 'categories') !== false && $method === 'GET') {
+    if (preg_match('#^categories/?$#', $path) && $method === 'GET') {
         CategoryController::index();
         exit;
     }
