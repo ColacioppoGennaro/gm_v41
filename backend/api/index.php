@@ -45,17 +45,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $path = preg_replace('#^(gm_v41/)?api/#', '', $path);
 $path = trim($path, '/');
 
-// DEBUG - Mostra path e esci
-if ($method === 'GET' && (strpos($path, 'events') !== false || strpos($path, 'categories') !== false)) {
-    echo json_encode([
-        'DEBUG' => true,
-        'original_uri' => $_SERVER['REQUEST_URI'],
-        'script_name' => $_SERVER['SCRIPT_NAME'],
-        'path_after_normalization' => $path,
-        'method' => $method
-    ]);
-    exit;
-}
+
 
 function notFound() {
     http_response_code(404);
